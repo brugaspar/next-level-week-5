@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 
-import colors from '../styles/colors';
+import global from '../styles/global';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -9,24 +9,30 @@ interface ButtonProps extends TouchableOpacityProps {
 
 export function Button({ title, ...rest }: ButtonProps) {
   return (
-    <TouchableOpacity style={styles.button} activeOpacity={0.8} {...rest}>
-      <Text style={styles.buttonText}>{title}</Text>
+    <TouchableOpacity
+      style={[
+        styles.container,
+        rest.disabled && { backgroundColor: global.colors.green_light }
+      ]}
+      activeOpacity={0.8}
+      {...rest}
+    >
+      <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: colors.green,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 16,
-    marginBottom: 30,
+  container: {
+    backgroundColor: global.colors.green,
     height: 56,
-    width: 56
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  buttonText: {
-    color: colors.white,
-    fontSize: 24
+  text: {
+    color: global.colors.white,
+    fontSize: 16,
+    fontFamily: global.fonts.heading
   }
 });
