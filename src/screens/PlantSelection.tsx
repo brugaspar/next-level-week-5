@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { EnvironmentButton } from '../components/EnvironmentButton';
+import { useNavigation } from '@react-navigation/native';
 
 import { Header } from '../components/Header';
 import { PlanListCard } from '../components/PlantListCard';
@@ -9,39 +10,36 @@ import { Loading } from '../components/Loading';
 import api from '../services/api';
 import global from '../styles/global';
 
+import { PlantProps } from '../libs/storage';
+
 interface EnvironmentProps {
   key: string;
   title: string;
 }
 
-interface PlantsProps {
-  id: string;
-  name: string;
-  about: string;
-  water_tips: string;
-  photo: string;
-  environments: string[];
-  frequency: {
-    times: number;
-    repeat_every: string;
-  }
-}
-
 export function PlantSelection() {
+  const navigation = useNavigation();
+
   const [environments, setEnvironments] = useState<EnvironmentProps[]>([]);
-  const [plants, setPlants] = useState<PlantsProps[]>([]);
+  const [plants, setPlants] = useState<PlantProps[]>([]);
 
   const [selectedEnvironment, setSelectedEnvironment] = useState('all');
-  const [filteredPlants, setFilteredPlants] = useState<PlantsProps[]>([]);
+  const [filteredPlants, setFilteredPlants] = useState<PlantProps[]>([]);
 
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [loadedAll, setLoadedAll] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
   async function fetchPlants() {
-    const { data } = await api.get(`plants?_sort=name&order=asc&_page=${page}&_limit=8`);
+    const { data } = await api.get('plants', {
+      params: {
+        _sort: 'name',
+        _order: 'asc',
+        _page: page,
+        _limit: 8
+      }
+    });
 
     if (!data) return setLoading(true);
 
@@ -76,9 +74,18 @@ export function PlantSelection() {
     fetchPlants();
   }
 
+  function handleNavigateToSelectedPlant(plant: PlantProps) {
+    navigation.navigate('SelectedPlant', { plant });
+  }
+
   useEffect(() => {
     (async () => {
-      const { data } = await api.get('plants_environments?_sort=title&order=asc');
+      const { data } = await api.get('plants_environments', {
+        params: {
+          _sort: 'title',
+          _order: 'asc'
+        }
+      });
 
       setEnvironments([{ key: 'all', title: 'Todos' }, ...data]);
     })();
@@ -102,7 +109,7 @@ export function PlantSelection() {
       <View>
         <FlatList
           data={environments}
-          keyExtractor={item => item.key}
+          keyExtractor={item => String(item.key)}
           renderItem={({ item }) => (
             <EnvironmentButton
               title={item.title}
@@ -119,8 +126,13 @@ export function PlantSelection() {
       <View style={styles.plantList}>
         <FlatList
           data={filteredPlants}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => <PlanListCard data={item} />}
+          keyExtractor={item => String(item.id)}
+          renderItem={({ item }) => (
+            <PlanListCard
+              data={item}
+              onPress={() => handleNavigateToSelectedPlant(item)}
+            />
+          )}
           showsVerticalScrollIndicator={false}
           numColumns={2}
           onEndReachedThreshold={0.1}

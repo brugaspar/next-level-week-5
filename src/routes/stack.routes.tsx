@@ -1,10 +1,12 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
+import TabBottomRoutes from './tab.routes';
+
 import { Welcome } from '../screens/Welcome';
 import { UserIdentification } from '../screens/UserIdentification';
 import { Confirmation } from '../screens/Confirmation';
-import { PlantSelection } from '../screens/PlantSelection';
+import { SelectedPlant } from '../screens/SelectedPlant';
 
 import global from '../styles/global';
 
@@ -33,7 +35,15 @@ const AppRoutes: React.FC = () => (
     />
     <StackRoutes.Screen
       name="PlantSelection"
-      component={PlantSelection}
+      component={TabBottomRoutes}
+    />
+    <StackRoutes.Screen
+      name="SelectedPlant"
+      component={SelectedPlant}
+    />
+    <StackRoutes.Screen
+      name="MyPlants"
+      component={TabBottomRoutes}
     />
   </StackRoutes.Navigator>
 );
